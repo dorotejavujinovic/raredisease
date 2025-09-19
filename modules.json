@@ -322,6 +322,11 @@
                         "git_sha": "54c18191be1e99d78832cb62dc6fb9513ed97eae",
                         "installed_by": ["modules"]
                     },
+                    "parabricks/deepvariant": {
+                        "branch": "master",
+                        "git_sha": "e824d95384679ea50c6c49aae9851160de80a301",
+                        "installed_by": ["modules"]
+                    },
                     "peddy": {
                         "branch": "master",
                         "git_sha": "7773ae1c42342cacb0b99794aa3827af0d523678",

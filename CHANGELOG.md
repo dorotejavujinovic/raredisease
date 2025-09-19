@@ -3,6 +3,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## kisld fork (branch kisld-3.1.2)
+
+Local commits carried on top of upstream 3.1.2, replayed from the 2.6-era fork:
+
+### `Added`
+
+- Parabricks DeepVariant (pbrun 4.5.1-1) as an additional variant caller (`variant_caller = "parabricks_deepvariant"`)
+- GATK contamination check for WES/WGS samples (`run_contamination`, `contamination_sites`, `contamination_sites_tbi`), shown in MultiQC alongside VerifyBamID2
+
+### `Changed`
+
+- `custom_config_base` vendored to `/home/Software/configs/nfcore_configs` so job launches survive GitHub outages
+
 ## 3.1.2 - Princess Peach (patch) [2026-07-06]
 
 ### `Fixed`
