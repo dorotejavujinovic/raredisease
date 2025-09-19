@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+- Parabricks DeepVariant as an optional variant caller
+
 ### `Changed`
 
 ### `Fixed`
@@ -19,9 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Tool updates
 
-| Tool | Old version | New version |
-| ---- | ----------- | ----------- |
-|      |             |             |
+| Tool                        | Old version | New version |
+| --------------------------- | ----------- | ----------- |
+| pbrun                       |             | 4.5.1-1     |
 
 ## 2.6.0 - Cacofonix [2025-06-25]
 
