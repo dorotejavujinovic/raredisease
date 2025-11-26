@@ -32,6 +32,7 @@ include { STRANGER                                          } from '../modules/n
 // MODULE: Local modules
 //
 
+include { PARSE_CONTAMINATION              } from '../modules/local/parse_contamination/main'
 include { RENAME_ALIGN_FILES as RENAME_BAM } from '../modules/local/rename_align_files'
 include { RENAME_ALIGN_FILES as RENAME_BAI } from '../modules/local/rename_align_files'
 include { SANITY_CHECK_VCFANNO_DATABASES   } from '../modules/local/sanity_check_vcfanno_databases/main'
@@ -41,6 +42,7 @@ include { SANITY_CHECK_VCFANNO_DATABASES   } from '../modules/local/sanity_check
 //
 
 include { ALIGN                                                       } from '../subworkflows/local/align'
+include { CONTAMINATION_CHECK                                         } from '../subworkflows/local/contamination_check/main'
 include { ANNOTATE_CSQ_PLI as ANN_CSQ_PLI_ME                          } from '../subworkflows/local/annotate_consequence_pli'
 include { ANNOTATE_CSQ_PLI as ANN_CSQ_PLI_MT                          } from '../subworkflows/local/annotate_consequence_pli'
 include { ANNOTATE_CSQ_PLI as ANN_CSQ_PLI_SNV                         } from '../subworkflows/local/annotate_consequence_pli'
@@ -362,6 +364,51 @@ workflow RAREDISEASE {
         skip_ngsbits
     )
     ch_qc_bam_publish = QC_BAM.out.publish
+
+    //
+    // SUBWORKFLOW: Check for contamination using GATK (kisld fork).
+    // Complements VerifyBamID2: GATK CalculateContamination performs better on
+    // targeted sequencing, so both run and both land in MultiQC.
+    //
+    ch_contamination_mqc     = channel.empty()
+    ch_contamination_publish = channel.empty()
+
+    if (params.run_contamination && params.contamination_sites) {
+
+        ch_contamination_sites = channel.of([
+            file(params.contamination_sites, checkIfExists: true),
+            file(params.contamination_sites_tbi, checkIfExists: true)
+        ]).collect()
+
+        // WES: restrict pileups to the target BED; WGS: genome-wide
+        // (channel.empty(), not channel.of([]), so GetPileupSummaries sees no intervals)
+        if (val_analysis_type == 'wes' && val_target_bed) {
+            ch_intervals_contamination = channel.fromPath(val_target_bed).collect()
+        } else {
+            ch_intervals_contamination = channel.empty()
+        }
+
+        CONTAMINATION_CHECK (
+            ch_mapped.genome_marked_bam_bai,
+            ch_genome_fasta,
+            ch_genome_fai,
+            ch_genome_dictionary,
+            ch_contamination_sites,
+            ch_intervals_contamination
+        )
+
+        // Parse for MultiQC
+        PARSE_CONTAMINATION (
+            CONTAMINATION_CHECK.out.contamination_table
+        )
+
+        ch_contamination_mqc     = PARSE_CONTAMINATION.out.mqc_table
+        ch_contamination_publish = CONTAMINATION_CHECK.out.contamination_table
+            .mix(CONTAMINATION_CHECK.out.segmentation_table)
+            .map { meta, value -> ['qc/contamination/', [meta, value]] }
+            .mix(CONTAMINATION_CHECK.out.pileup_table
+                .map { meta, value -> ['qc/contamination/pileups/', [meta, value]] })
+    }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -975,6 +1022,8 @@ workflow RAREDISEASE {
     ch_multiqc_files = ch_multiqc_files.mix(QC_BAM.out.global_dist.map{_meta, reports -> reports}.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(QC_BAM.out.cov.map{_meta, reports -> reports}.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(QC_BAM.out.self_sm.map{_meta, reports -> reports}.collect().ifEmpty([]))
+    // GATK contamination custom content (kisld fork)
+    ch_multiqc_files = ch_multiqc_files.mix(ch_contamination_mqc.map{_meta, reports -> reports}.collect().ifEmpty([]))
 
     if (!skip_peddy) {
         ch_multiqc_files = ch_multiqc_files.mix(PEDDY.out.ped.map{_meta, reports -> reports}.collect().ifEmpty([]))
@@ -1017,6 +1066,7 @@ workflow RAREDISEASE {
                        .mix(ch_rank_snv_publish)
                        .mix(ch_rank_mt_publish)
                        .mix(ch_rank_sv_publish)
+                       .mix(ch_contamination_publish)
                        .mix(ch_variant_evaluation_publish) // channel: [ val(destination), val(value) ]
 
 }

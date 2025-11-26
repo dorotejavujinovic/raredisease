@@ -476,6 +476,24 @@
                     "description": "Path to UD matrix file from SVD result of genotype matrix. Used by verifybamid2.",
                     "fa_icon": "fas fa-file-csv"
                 },
+                "contamination_sites": {
+                    "type": "string",
+                    "exists": true,
+                    "format": "file-path",
+                    "description": "Path to VCF file with common germline variants for contamination estimation",
+                    "help_text": "VCF file (e.g., gnomAD) used by GATK GetPileupSummaries to estimate sample contamination. Should contain common germline variants with population allele frequencies.",
+                    "fa_icon": "fas fa-file-medical",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$"
+                },
+                "contamination_sites_tbi": {
+                    "type": "string",
+                    "exists": true,
+                    "format": "file-path",
+                    "description": "Index file (.tbi) for contamination sites VCF",
+                    "help_text": "Tabix index for the contamination sites VCF file. Required for GATK GetPileupSummaries.",
+                    "fa_icon": "fas fa-file-medical",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?\\.tbi$"
+                },
                 "vcf2cytosure_blacklist": {
                     "type": "string",
                     "exists": true,
@@ -613,6 +631,12 @@
                     "type": "boolean",
                     "description": "Specifies whether to run rtgtools' vcfeval",
                     "fa_icon": "fas fa-toggle-on"
+                },
+                "run_contamination": {
+                    "type": "boolean",
+                    "description": "Run GATK contamination estimation",
+                    "help_text": "Enable sample contamination estimation using GATK GetPileupSummaries and CalculateContamination. Results will be included in the MultiQC report.",
+                    "fa_icon": "fas fa-vial"
                 },
                 "run_vcfanno_db_sanity_check": {
                     "type": "boolean",
