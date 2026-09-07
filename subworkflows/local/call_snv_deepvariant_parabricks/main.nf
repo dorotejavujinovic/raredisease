@@ -93,7 +93,7 @@ workflow CALL_SNV_DEEPVARIANT_PARABRICKS {
 
     emit:
         gvcf       = PARABRICKS_DEEPVARIANT.out.gvcf // channel: [ val(meta), path(gvcf)] - already compressed
-        gvcf_tabix = TABIX_PARABRICKS.out.tbi        // channel: [ val(meta), path(gvcf_tbi)]
+        gvcf_tabix = TABIX_PARABRICKS.out.index      // channel: [ val(meta), path(gvcf_tbi)] - tabix/tabix emits 'index'
         publish    = ch_publish                      // channel: [ val(meta), path(report) ] - pbrun produces no vcf_stats_report
         tabix      = BCFTOOLS_ANNOTATE.out.tbi       // channel: [ val(meta), path(tbi) ]
         vcf        = BCFTOOLS_ANNOTATE.out.vcf       // channel: [ val(meta), path(vcf) ]
