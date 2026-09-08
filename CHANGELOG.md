@@ -16,6 +16,10 @@ Local commits carried on top of upstream 3.1.2, replayed from the 2.6-era fork:
 
 - `custom_config_base` vendored to `/home/Software/configs/nfcore_configs` so job launches survive GitHub outages
 
+### `Fixed`
+
+- `CALL_SNV` was called with `val_skip_split_multiallelics` and `val_run_mt_for_wes` swapped (upstream 3.1.2 bug, harmless only when both are false). With `run_mt_for_wes = true` this silently skipped `bcftools norm --multiallelics` (leaving multiallelic records that make `genmod compound` 3.10.2 crash with `KeyError` and hang) and skipped Mutect2 MT calling for WES.
+
 ## 3.1.2 - Princess Peach (patch) [2026-07-06]
 
 ### `Fixed`
