@@ -15,6 +15,13 @@ Local commits carried on top of upstream 3.1.2, replayed from the 2.6-era fork:
 ### `Changed`
 
 - `custom_config_base` vendored to `/home/Software/configs/nfcore_configs` so job launches survive GitHub outages
+- Gens widened from genomes to genomes and exomes. Upstream gates it on
+  `analysis_type == "wgs"` because exome coverage is sparse and capture-biased.
+  This site has a dedicated 32+32 sample **exome** Gens panel of normals, already
+  referenced by `params/raredisease_gpu3.1_wes.json` (`gens_pon_male`,
+  `gens_pon_female`, `gens_interval_list`), which corrects for that and which the
+  hardcoded condition made unreachable. `skip_tools = gens` is still the way to
+  turn it off, and a site without an exome panel should use it.
 
 ### `Fixed`
 

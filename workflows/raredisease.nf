@@ -913,7 +913,15 @@ workflow RAREDISEASE {
     GENS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-    if (!skip_gens && val_analysis_type.equals("wgs")) {
+    // kisld: widened from wgs-only to wgs|wes. Upstream restricts Gens to
+    // genomes because exome coverage is sparse and capture-biased, which makes
+    // a genome-wide coverage plot misleading. That is corrected by using an
+    // EXOME panel of normals, which this site has: gens_pon_{male,female} and
+    // gens_interval_list in params/raredisease_gpu3.1_wes.json point at a
+    // dedicated 32+32 sample exome panel that existed but was unreachable
+    // behind this condition. `skip_tools = gens` remains the way to turn it off,
+    // and a site without an exome panel should use it.
+    if (!skip_gens && val_analysis_type.matches("wgs|wes")) {
         GENS (
             ch_mapped.genome_marked_bam_bai,
             ch_genome_dictionary,
